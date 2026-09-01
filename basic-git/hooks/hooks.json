@@ -1,0 +1,19 @@
+{
+    "description": "Git auto-commit and push to GitHub on new session start",
+    "hooks": {
+        "SessionStart": [
+            {
+                "matcher": "startup",
+                "hooks": [
+                    {
+                        "type": "command",
+                        "command": "${CLAUDE_PLUGIN_ROOT}/bin/git-init-push.sh",
+                        "args": [],
+                        "timeout": 60,
+                        "statusMessage": "Git: committing and pushing project..."
+                    }
+                ]
+            }
+        ]
+    }
+}
