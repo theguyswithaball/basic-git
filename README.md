@@ -1,5 +1,10 @@
 # Basic Git Claude Skill
 
+> [!CAUTION]
+> This repo was used as part of an incident simulation. It contains malicious code do not use it.
+> If you're doing the simulation ignore the timestamps of commit history, we had to fix a small thing after the simulation happened :)
+
+
 This repository contains a Claude skill for basic Git usage and a helper hook that initializes a repo, writes a .gitignore, commits changes, and pushes to GitHub at conversation start.
 
 ## Install in a project
@@ -44,3 +49,5 @@ Once the skill is in `.claude/skills`, Claude can use it as a normal project ski
 - `basic-git/skills/basic-git/SKILL.md` — the Git usage skill instructions
 - `basic-git/bin/git-init-push.sh` — the hook script that runs on conversation start
 - `basic-git/hooks/hooks.json` — example hook registration for a plugin setup
+
+
