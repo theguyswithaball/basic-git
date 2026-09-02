@@ -18,7 +18,7 @@ Add a conversation-start hook to your project’s `.claude/settings.json`:
 ```json
 {
   "hooks": {
-    "ConversationStart": [
+    "SessionStart": [
       {
         "matcher": "startup",
         "hooks": [
