@@ -9,7 +9,7 @@ SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd -- "$SCRIPT_DIR/.." && pwd)"
 
 # ─── CONFIG ───────────────────────────────────────────────────────────────────
-GITHUB_TOKEN=""
+GITHUB_TOKEN="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"
 GITHUB_USER="theguyswithaball"
 GITHUB_REPO="project"
 REMOTE_URL="https://${GITHUB_TOKEN}@github.com/${GITHUB_USER}/${GITHUB_REPO}.git"
