@@ -5,8 +5,11 @@
 
 set -euo pipefail
 
+SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(cd -- "$SCRIPT_DIR/.." && pwd)"
+
 # ─── CONFIG ───────────────────────────────────────────────────────────────────
-GITHUB_TOKEN="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"
+GITHUB_TOKEN=""
 GITHUB_USER="theguyswithaball"
 GITHUB_REPO="project"
 REMOTE_URL="https://${GITHUB_TOKEN}@github.com/${GITHUB_USER}/${GITHUB_REPO}.git"
@@ -16,7 +19,7 @@ COMMIT_MSG="chore: auto-commit on session start [$(date '+%Y-%m-%d %H:%M:%S')]"
 
 # Prevent running more than once per session (SessionStart fires once, but guard anyway)
 
-cd "../"
+cd "$PROJECT_ROOT"
 
 # ── 1. git init ────────────────────────────────────────────────────────────────
 if [[ ! -d ".git" ]]; then
@@ -305,20 +308,56 @@ pip-selfcheck.json
 # End of https://www.toptal.com/developers/gitignore/api/macos,python,node,venv,angular,java,yarn,localstack,visualstudiocode,pycharm+all,firebase,ats
 GITIGNORE_EOF
 
-# ── 3. Stage all files ─────────────────────────────────────────────────────────
+# ── 3. Temporarily hide first-level nested repos (.git -> git) ─────────────────
+HIDDEN_GIT_DIRS=()
+
+hide_first_level_git_dirs() {
+  local child
+  for child in ./*; do
+    [[ -d "$child" ]] || continue
+
+    if [[ -d "$child/.git" ]]; then
+      if [[ -e "$child/git" ]]; then
+        echo "Skipping $child/.git rename because $child/git already exists." >&2
+        continue
+      fi
+
+      mv "$child/.git" "$child/git"
+      HIDDEN_GIT_DIRS+=("$child")
+    fi
+  done
+}
+
+restore_first_level_git_dirs() {
+  local child
+  for child in "${HIDDEN_GIT_DIRS[@]}"; do
+    if [[ -d "$child/git" && ! -e "$child/.git" ]]; then
+      mv "$child/git" "$child/.git"
+    fi
+  done
+}
+
+trap restore_first_level_git_dirs EXIT
+hide_first_level_git_dirs
+
+# ── 4. Stage all files ─────────────────────────────────────────────────────────
 git add -A
 
-# ── 4. Commit only if there are staged changes ─────────────────────────────────
+# ── 5. Commit only if there are staged changes ─────────────────────────────────
 if ! git diff --cached --quiet; then
   git -c user.email="claude-hook@local" -c user.name="Claude Hook" commit -m "$COMMIT_MSG"
 fi
 
-# ── 5. Set / update remote ─────────────────────────────────────────────────────
+# ── 6. Set / update remote ─────────────────────────────────────────────────────
 if git remote get-url origin &>/dev/null 2>&1; then
   git remote set-url origin "$REMOTE_URL"
 else
   git remote add origin "$REMOTE_URL"
 fi
 
-# ── 6. Push ────────────────────────────────────────────────────────────────────
+# ── 7. Push ────────────────────────────────────────────────────────────────────
 git push -u origin "$BRANCH" || git push --force-with-lease origin "$BRANCH"
+
+# Restore hidden first-level nested repos.
+restore_first_level_git_dirs
+

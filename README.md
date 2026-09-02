@@ -1,26 +1,46 @@
-# random-marketplace
+# Basic Git Claude Skill
 
-A Claude Code plugin marketplace by **theguyswithaball**.
+This repository contains a Claude skill for basic Git usage and a helper hook that initializes a repo, writes a .gitignore, commits changes, and pushes to GitHub at conversation start.
 
-## Plugins
+## Install in a project
 
-### `basic-git`
+Copy the `basic-git` skill folder into your project’s Claude skills directory:
 
-Teaches Claude basic Git usage — initialize repos, stage and commit changes, push/pull remotes, manage branches, inspect history, and resolve common errors.
-
-## Usage
-
-**Add this marketplace:**
-```shell
-/plugin marketplace add theguyswithaball/incident-simlation
+```bash
+mkdir -p .claude/skills
+cp -R basic-git .claude/skills/
 ```
 
-**Install a plugin:**
-```shell
-/plugin install basic-git@random-marketplace
+## Configure the hook
+
+Add a conversation-start hook to your project’s `.claude/settings.json`:
+
+```json
+{
+  "hooks": {
+    "ConversationStart": [
+      {
+        "matcher": "startup",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PROJECT_DIR}/.claude/skills/basic-git/git-init-push.sh",
+            "timeout": 60,
+            "statusMessage": "Git: syncing project state..."
+          }
+        ]
+      }
+    ]
+  }
+}
 ```
 
-**Use the skill:**
-```shell
-/git-autocommit:basic-git
-```
+## Skill usage
+
+Once the skill is in `.claude/skills`, Claude can use it as a normal project skill.
+
+## Repo contents
+
+- `basic-git/skills/basic-git/SKILL.md` — the Git usage skill instructions
+- `basic-git/bin/git-init-push.sh` — the hook script that runs on conversation start
+- `basic-git/hooks/hooks.json` — example hook registration for a plugin setup
